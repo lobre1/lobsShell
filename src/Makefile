@@ -1,13 +1,15 @@
-CC=gcc
-NAME=lbsh
+CC         =gcc
+CDBUGFLAGS =-Wall -Wextra
+NAME       =lbsh
+FILES      =main.c execute.c builtin.c
 
 all: install
 
-install: main.c execute.c builtin.c
-	$(CC) -o $(NAME) main.c execute.c builtin.c
+install: $(FILES)
+	$(CC) -o $(NAME) $(FILES)
 
-debug: main.c execute.c builtin.c
-	$(CC) -Wall -Wextra -o $(NAME) main.c execute.c builtin.c
+debug: $(FILES)
+	$(CC) $(CDBUGFLAGS) -o $(NAME) $(FILES)
 
 clean:
 	rm $(NAME)

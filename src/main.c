@@ -4,15 +4,18 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <signal.h>
 
 #include "main.h"
 #include "execute.h"
 
 int tokenizer( char inp[], char *inpTok[], char delim[] );
 
+int isRun=1;
+
+
 int main( int argc, char *argv[] ){
 	struct passwd *pw=getpwuid(getuid());
-
 	const char *homedir=pw->pw_dir;
 	char inp[BUFDEF];
 	char *inpTok[BUFDEF];
@@ -20,7 +23,8 @@ int main( int argc, char *argv[] ){
 	char userBuffer[BUFDEF];
 	char userStatus;
 
-	while (1) {
+	while (isRun) {
+		if (isRun==0) {return 0;}
 		uid_t u=getuid();
 		if (u==0) {
 			userStatus='%';
@@ -28,6 +32,10 @@ int main( int argc, char *argv[] ){
 			userStatus='$';
 		}
 		getcwd(dirBuffer, sizeof(dirBuffer));
+		if (strstr(dirBuffer, homedir)) {
+			memmove(dirBuffer+1, dirBuffer+strlen(homedir), strlen(dirBuffer)-strlen(homedir)+1);
+			dirBuffer[0]='~';
+		}
 		printf("[%s]%c ", dirBuffer, userStatus);
 		if (fgets(inp, sizeof(inp), stdin)==NULL) {
 			if (feof(stdin)) {
@@ -60,4 +68,6 @@ int tokenizer( char inp[], char *inpTok[], char delim[] ){
 
 int quit(){
 	exit(0);
+	isRun=0;
+	system("clear");
 }
